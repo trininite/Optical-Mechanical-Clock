@@ -5,6 +5,9 @@ float Vout = 0;            // Vout default value
 float Rref = 1000;          // Reference resistor's value in ohms (you can give this value in kiloohms or megaohms - the resistance of the tested resistor will be given in the same units)
 float R = 1300000;               // Tested resistors default value
 int clk = 0;          
+const int tickTHold;
+int ticks;
+String Dout;
 
 void setup ()
 {
@@ -16,7 +19,11 @@ void loop ()
   sensorValue = analogRead(sensorPin);  // Read Vout on analog input pin A0 (Arduino can sense from 0-1023, 1023 is 5V)
   Vout = (Vin * sensorValue) / 1023;    // Convert Vout to volts
   R = Rref * (1 / ((Vin / Vout) - 1));  // Formula to calculate tested resistor's value                
+  if (R >= tickTHold){
+    ticks += 1;
+  }
 
-  Serial.println(R);
+  Dout = String(A0R) + ":" + String(ticks);
+  Serial.println(Dout);
   delay(1);
 }
