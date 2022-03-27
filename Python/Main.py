@@ -22,11 +22,11 @@ ser = serial.Serial('/dev/ttyACM0', 9600)
 ticks = 0
 
 def update_label():
-    A0 = float(ser.readline())
+    A0 = int(ser.readline())
     Vout = (Vin * A0) / 1023
     R = RRef * (1 / ((Vin / Vout) -1))  
 
-    ohmLabel.config(text=str(A0)) #Update label with next text.
+    ohmCounter.config(text=str(A0)) #Update label with next text.
 
     root.after(1000, update_label)#calls update_label function again after 1 second.
 
@@ -37,7 +37,8 @@ root.geometry
 #Static Labels
 ohmLabel = ttk.Label(
     root,
-    text = "Resistance"
+    text = "Resistance:",
+    font = (bigFont)
 )
 
 tickLabel = ttk.Label( #Lables tick counter
@@ -69,17 +70,37 @@ timeCounter = ttk.Label( #Outputs calculated time
     font = (22)
 )
 
+ohmLabel.grid(
+    column = 0,
+    row = 0
+)
 
-ohmLabel
-tickLabel
-timeLabel
+tickLabel.grid(
+    column = 0,
+    row = 2
+)
 
-ohmCounter
-tickCounter
-timeLabel
+timeLabel.grid(
+    column = 0,
+    row = 4
+)
 
+#--------------------
 
+ohmCounter.grid(
+    column = 0,
+    row = 1
+)
 
+tickCounter.grid(
+    column = 0,
+    row = 3
+)
+
+timeLabel.grid(
+    column = 0,
+    row = 5
+)
 
 
 update_label()
