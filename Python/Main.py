@@ -1,13 +1,22 @@
 #Main
+from datetime import datetime
 from tkinter import *
 import tkinter as ttk
 import time
 import serial
-import threading
+import random
+#import threading
 
+with open("LogFile", 'r+') as f:
+    f.truncate(0)
 
 print("RESET ARDUINO")
-time.sleep(5)
+print("Starting Program in 3")
+time.sleep(1)
+print("Starting Program in 2")
+time.sleep(1)
+print("Starting Program in 1")
+time.sleep(1)
 
 
 ser = serial.Serial('/dev/ttyACM0', 9600)
@@ -27,6 +36,14 @@ lasttick = 9999
 bigFont = font = ("Helvetica", 22)
 normalFont = font = ("Helvetica", 16)
 
+def noSerial_update_label():
+    global ticks
+    Ran = random.randint(1000,10000)
+    ohmCounter.config(text = Ran)
+    tickCounter.config(text = Ran)
+    timeCounter.config(text = Ran)
+
+    root.after(500, noSerial_update_label)
 
 
 def update_label():
@@ -37,35 +54,46 @@ def update_label():
     global lasttick
     if ser.in_waiting:
         clk += 1 #add 1 to operation counter
-        RX = ser.readline() #make RX equal to incoming aruino data 
-        RXD = RX.decode('utf-8', errors = 'ignore') #decode to utf-8
-        RXLen = len(RXD) #determine length of RX
-        RXC = RXD.index(":") #make RXC equal to position of dividing colon
-        R = RXD[:RXC] #make R equal to value before dividing colon
-        ticks = RXD[RXC+1:RXLen] #make ticks equal to value after colon
 
-        if int(ticks)!= 0:
-            if int(ticks) % 2 == 0:
-                if lasttick != ticks:
-                    ss += 1
-                    lasttick = ticks
+        RX = ser.readline().decode('utf-8', errors = 'ignore')  #make RX equal to incoming aruino data 
 
-        timet = str(hh), str(mm),  str(ss) 
+        RXLen = len(RX) #Make RXLen equal to the length of RX
+
+        RXC = RX.index(":") #make RXC equal to position of dividing colon
+
+        R = RX[:RXC] #make R equal to value(s) before dividing colon (Resistance)
+
+        ticks = RX[RXC+1:RXLen] #make ticks equal to value(s) after colon (Ticks)
+
+        if int(ticks)!= 0: #If tick count isn't 0 (prevent seconds value from going up on the first operation)
+            if int(ticks) % 2 == 0: #If the parameters of the clock constitute a tick
+                if lasttick != ticks: #If the tick is not a duplicate
+                    ss += 1 #Add 1 second
+                    lasttick = ticks #Set current tick val to lasttick val; used to prevent duplicate ticks on line 63
+
+        timeFormatted = str(hh), str(mm),  str(ss) #Format the time 
+
+        nowRaw = datetime.now()
+
+        now = nowRaw.strftime("%H:%M:%S")
+        
+        logData = "System Time:" + str(now) + "Resistance Value:" + str(R) + "Tick Count:" + str(ticks) + "" 
 
         log = open('LogFile','a') #Open log file
-        log.writelines(str(RXD) + str(R) + str(clk) + str(timet)) #Write values
+        log.writelines(str(RX) + str(R) + str(clk) + str(timeFormatted)) #Write values
         log.close #Close log file
+        
         ohmCounter.config(text = R) #Update label with resistance
         tickCounter.config(text = ticks) #Update tick count
-        timeCounter.config(text = timet) #Update time count
-        root.after(1000, update_label)#Calls update_label function again after 1 second.
+        timeCounter.config(text = timeFormatted) #Update time count
+
+        root.after(100, update_label)#Calls update_label function again after 1 second.
     else:
-        root.after(50, update_label)#Calls update_label function again after 1 second.
+        root.after(100, update_label)#Calls update_label function again after 1 second.
 
 
 root = ttk.Tk()
 root.geometry('500x400')
-root.geometry
 
 #At some point all the widgets need to be organized into frames 
 #Then each fram should be put in a seperate file linked with json
@@ -113,7 +141,7 @@ tickCounter = ttk.Label(
 #Outputs calculated time
 timeCounter = ttk.Label( 
     root,
-    text = "",
+    text = "000000000",
     font = normalFont
 )
 
@@ -123,6 +151,12 @@ quitButton = ttk.Button(
     root,
     text = "Quit",
     command = quit
+)
+
+motorToggle = ttk.Button(
+    root,
+    text = "Off",
+    command = print
 )
 
 #Grid
@@ -160,9 +194,17 @@ timeCounter.grid(
 )
 
 #Functions
+
+motorToggle.grid(
+    column = 0,
+    row = 6
+)
+
+
+
 quitButton.grid(
     column = 0,
-    row = 6,
+    row = 7,
     sticky = S
 )
 
