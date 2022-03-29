@@ -36,7 +36,7 @@ lasttick = 9999
 bigFont = font = ("Helvetica", 22)
 normalFont = font = ("Helvetica", 16)
 
-def noSerial_update_label():
+def noSerial_update_label(): #Test update the output fields no serial required
     global ticks
     Ran = random.randint(1000,10000)
     ohmCounter.config(text = Ran)
@@ -77,19 +77,19 @@ def update_label():
 
         now = nowRaw.strftime("%H:%M:%S")
         
-        logData = "System Time:" + str(now) + "Resistance Value:" + str(R) + "Tick Count:" + str(ticks) + "" 
+        logData = "System Time:" + str(now) + " Resistance Value:" + str(R) + " Tick Count:" + str(ticks)
 
         log = open('LogFile','a') #Open log file
-        log.writelines(str(RX) + str(R) + str(clk) + str(timeFormatted)) #Write values
+        log.writelines(logData) #Write values
         log.close #Close log file
         
         ohmCounter.config(text = R) #Update label with resistance
         tickCounter.config(text = ticks) #Update tick count
         timeCounter.config(text = timeFormatted) #Update time count
 
-        root.after(100, update_label)#Calls update_label function again after 1 second.
+        root.after(100, update_label)#Calls update_label function again after .1 second.
     else:
-        root.after(100, update_label)#Calls update_label function again after 1 second.
+        root.after(100, update_label)#Calls update_label function again after .1 second.
 
 
 root = ttk.Tk()
