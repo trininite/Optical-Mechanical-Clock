@@ -23,7 +23,9 @@ void loop ()
     ticks += 1;
   }
 
-  Dout = String(R) + ":" + String(ticks);
+  Dout = String(round(R)) + ":" + String(round(ticks));
   Serial.println(Dout);
   delay(100);
+}
+
 }
