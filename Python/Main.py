@@ -7,8 +7,15 @@ import serial
 import random
 #import threading
 
-with open("LogFile", 'r+') as f:
+
+
+global LogPath
+LogPath = "/home/trident/Documents/Optical-Mechanical-Clock/LogFile"
+with open(LogPath, 'r+') as f:
     f.truncate(0)
+
+
+
 
 print("RESET ARDUINO")
 print("Starting Program in 3")
@@ -18,8 +25,7 @@ time.sleep(1)
 print("Starting Program in 1")
 time.sleep(1)
 
-
-ser = serial.Serial('/dev/ttyACM0', 9600)
+ser = serial.Serial('/dev/ttyUSB2', 9600)
 global clk
 clk = 0
 global ss
@@ -32,6 +38,8 @@ global ticks
 ticks = 0
 global lasttick
 lasttick = 9999
+
+
 
 bigFont = font = ("Helvetica", 22)
 normalFont = font = ("Helvetica", 16)
@@ -52,6 +60,7 @@ def update_label():
     global mm
     global hh
     global lasttick
+    global LogPath
     if ser.in_waiting:
         clk += 1 #add 1 to operation counter
 
@@ -79,7 +88,7 @@ def update_label():
         
         logData = "System Time:" + str(now) + " Resistance Value:" + str(R) + " Tick Count:" + str(ticks)
 
-        log = open('LogFile','a') #Open log file
+        log = open(LogPath,'a') #Open log file
         log.writelines(logData) #Write values
         log.close #Close log file
         
@@ -199,7 +208,6 @@ motorToggle.grid(
     column = 0,
     row = 6
 )
-
 
 
 quitButton.grid(
