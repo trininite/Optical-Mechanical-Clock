@@ -35,7 +35,13 @@ RThresh = 10
 global dupeLatch
 dupeLatch = False
 
-
+#First tick time variables
+global fs
+fs = 0
+global fm
+fm = 0
+global fh
+fh = 0 
 
 #Log packet
 def logRx(packet):
@@ -50,13 +56,15 @@ def logRx(packet):
 def genPacket(R, Ticks, first):
     if first == True:
         packet = str(clk) + "Resistance:" + str(R) + "Ticks:" + str(Ticks)
-
+        
 
 #Get serial data
 def evalRx(R):
     global ticks, RThresh, dupeLatch
-    
     realTime = datetime.now()
+    realH = 
+    realM = 
+    realS =
 
     #If a tick
     if R <= RThresh:
