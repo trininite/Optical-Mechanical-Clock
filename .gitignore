@@ -1,2 +1,6 @@
 Deprecated/
-.vscode/
+.vscodeo/
+*.swp
+*.swa
+*.swo
+CLILogFile
