@@ -4,9 +4,25 @@ import serial
 import sys
 from datetime import datetime
 
+#-----------------------------------------------------------------------------------------------
+
 #Increase recursion limit
 sys.setrecursionlimit(10**6)
 
+#-----------------------------------------------------------------------------------------------
+
+#Tuning
+#Create resistance threshold
+global RThresh
+RThresh = 10
+
+#Normal amount of ticks per second
+global ticksPerSec
+ticksPerSec = 60
+
+#-----------------------------------------------------------------------------------------------
+
+#Data transfer/logging
 #Initialize serial connection
 global ser
 ser = serial.Serial("/dev/ttyACM0", 115200)
@@ -19,9 +35,16 @@ with open(LogPath, "r+") as log:
     log.truncate(0)
     log.close
 
+#-----------------------------------------------------------------------------------------------
+
+#Flags
 #Create operation counter
 global clk
 clk = 0
+
+#Create global operatio counter
+global globclk
+globclk = 0
 
 #Create tick counter
 global ticks
@@ -35,78 +58,77 @@ RThresh = 10
 global dupeLatch
 dupeLatch = False
 
-#First tick time variables
-global fs
-fs = 0
-global fm
-fm = 0
-global fh
-fh = 0 
+#Initial tick time
+global iH, iM, iS
+iH = 0
+iM = 0
+iS = 0
 
+#-----------------------------------------------------------------------------------------------
+
+#Functions <more text>
 #Log packet
 def logRx(packet):
     global clk
     log = open(LogPath, 'a')
     log.writelines(packet)
     log.close
-    clk += 1
     return
 
 #Generate packet
-def genPacket(R, Ticks, first):
+def genPacket(R, Ticks, first, h, m, s):
     if first == True:
-        packet = str(clk) + "Resistance:" + str(R) + "Ticks:" + str(Ticks)
+        packet = "INITIAL TICK TIME: " + h + m + s + ""
         
 
 #Get serial data
 def evalRx(R):
-    global ticks, RThresh, dupeLatch
-    realTime = datetime.now()
-    realH = 
-    realM = 
-    realS =
+    global ticks, RThresh, dupeLatch, iH, iM, iS
+    nowRaw = datetime.now()
+    nH = nowRaw.strftime("%H")
+    nM = nowRaw.strftime("%M")
+    nS = nowRaw.strftime("%S")
 
     #If a tick
     if R <= RThresh:
+         
+        #If first tick
+        if ticks <= 0:
+            iH = nH
+            iM = nM
+            iS = nS
+            genPacket(R, ticks, )
 
-        #If not a duplicate
+        #If unique
         if dupeLatch == False:
-        
-            #If first tick
-            if ticks == 0:
-                dupeLatch = True
-                ticks += 1
-                genPacket(R, ticks, True)
+            ticks += 1
+            dupeLatch = True
             
-            #If not first tick
-            elif ticks != 0:
-                dupeLatch = False
-                ticks += 1
-                genPacket(R, ticks, False)
-
-        #If a duplicate
+            
+        #If not unique
         elif dupeLatch == True:
-            genPacket(R, ticks, False)
+            calcTime(R, ticks, nH, nM, nS)
 
     #If not a tick
     elif R > RThresh:
         dupeLatch == False
-        genPacket(R, ticks, False)
-
+        calcTime(R, ticks, nH, nM, nS)
+        
     #If anything else, quit
     else:
         print("ERROR")
         quit()
 
+    
+
 def pullRx():
     global ser
     
     R = ser.readline().decode('utf-8', errors = "ignore")
-
     evalRx(R)
 
 
-
 #Start loop
-getRx()
+
+pullRx()
 
