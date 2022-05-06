@@ -25,7 +25,7 @@ time.sleep(1)
 print("Starting Program in 1")
 time.sleep(1)
 
-ser = serial.Serial('/dev/ttyUSB2', 9600)
+ser = serial.Serial('/dev/ttyUSB0', 115200)
 global clk
 clk = 0
 global ss
