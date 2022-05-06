@@ -42,10 +42,6 @@ with open(LogPath, "r+") as log:
 global clk
 clk = 0
 
-#Create global operatio counter
-global globclk
-globclk = 0
-
 #Create tick counter
 global ticks
 ticks = 0
@@ -57,12 +53,6 @@ RThresh = 10
 #Create duplicate detection latch
 global dupeLatch
 dupeLatch = False
-
-#Initial tick time
-global iH, iM, iS
-iH = 0
-iM = 0
-iS = 0
 
 #-----------------------------------------------------------------------------------------------
 
@@ -76,14 +66,26 @@ def logRx(packet):
     return
 
 #Generate packet
-def genPacket(R, Ticks, first, h, m, s):
+def genPacket(R, Ticks, first):
     if first == True:
+        iH = h
+        iM = m
+        iS = s
         packet = "INITIAL TICK TIME: " + h + m + s + ""
-        
+    
+    if first == False:
+        return
+
+def calcError(mode, h, m, s):
+    if mode == "edit":
+        iH = h
+        iM = m
+        iS = s
+    elif mode == "calc"
 
 #Get serial data
 def evalRx(R):
-    global ticks, RThresh, dupeLatch, iH, iM, iS
+    global ticks, RThresh, dupeLatch, ticksPerSec
     nowRaw = datetime.now()
     nH = nowRaw.strftime("%H")
     nM = nowRaw.strftime("%M")
@@ -91,18 +93,36 @@ def evalRx(R):
 
     #If a tick
     if R <= RThresh:
-         
+
         #If first tick
         if ticks <= 0:
             iH = nH
             iM = nM
             iS = nS
-            genPacket(R, ticks, )
+            
+            calcError("edit", iH, iM, iS)
+
+            genPacket(R, ticks, True, iH, iM, iS, 0, 0, 0)
 
         #If unique
         if dupeLatch == False:
             ticks += 1
             dupeLatch = True
+            
+            if ticks % ticksPerSec == 0:
+                cS += 1
+                a1s = True
+            if cS % 60 == 0:
+                cS = 0
+                cM += 1
+            if cM % 60 == 0:
+                cM = 0
+                cH += 1
+            
+            genPacket(R, ticks, )
+
+
+                
             
             
         #If not unique
