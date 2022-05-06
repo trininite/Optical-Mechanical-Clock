@@ -4,3 +4,4 @@ Deprecated/
 *.swa
 *.swo
 CLILogFile
+LogFile
